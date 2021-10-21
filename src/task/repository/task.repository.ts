@@ -20,7 +20,6 @@ export class TaskRepository extends Repository<Task> {
   }
 
   //get task
-  //
   async getAllTasks(filterDto: FilterDto): Promise<Task[]> {
     const { keyword } = filterDto;
 

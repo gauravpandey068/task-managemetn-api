@@ -45,7 +45,7 @@ export class TaskService {
     }
   }
 
-  //update task
+  //update task by id
   async update(id: number, updateTaskDto: TaskDto): Promise<any> {
     const task = await this.findOne(id);
     const oldTaskName = task.taskName;
@@ -65,7 +65,7 @@ export class TaskService {
     return { message: `Task ${oldTaskName} is updated`, task };
   }
 
-  //delete task
+  //delete task by id
   async remove(id: number): Promise<string> {
     const findTask = await this.findOne(id);
 
