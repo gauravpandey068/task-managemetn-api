@@ -10,5 +10,4 @@ export class Task {
 
   @Column()
   description: string;
-  affected: any;
 }
