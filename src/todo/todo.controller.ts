@@ -30,6 +30,7 @@ export class TodoController {
     return this.todoService.findAll();
   }
 
+  //not working
   @Patch(':id')
   update(
     @Param('id') id: number,

@@ -34,6 +34,7 @@ export class TodoService {
     return await this.todoRepository.findOne(id);
   }
 
+  ////not working
   async update(id: number, updateTodoDto: UpdateTodoDto) {
     const itemFound = await this.findOne(id);
 
