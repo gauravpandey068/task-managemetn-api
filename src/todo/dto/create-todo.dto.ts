@@ -6,5 +6,5 @@ export class CreateTodoDto {
   todoName: string;
 
   @IsString()
-  todoDescription: string;
+  todoDescription: string; //optional
 }
