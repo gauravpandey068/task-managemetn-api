@@ -10,7 +10,7 @@ export class TodoStatusValidationPipe implements PipeTransform {
 
   transform(value: any) {
     if (!this.isStatusValid(value)) {
-      throw new BadRequestException(`${value} is invalid status`);
+      throw new BadRequestException(`${value} is invalid status.`);
     }
     return value;
   }
