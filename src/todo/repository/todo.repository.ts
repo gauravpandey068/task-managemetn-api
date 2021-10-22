@@ -12,7 +12,7 @@ export class TodoRepository extends Repository<Todo> {
 
     todo.todoName = todoName;
     todo.todoDescription = todoDescription;
-    todo.status = TodoStatus.TODO;
+    todo.status = TodoStatus.TODO; //default value
 
     await this.manager.save(todo);
 
