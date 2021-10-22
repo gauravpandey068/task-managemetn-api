@@ -10,5 +10,5 @@ export class UpdateTodoDto {
   todoDescription: string;
 
   @IsNotEmpty()
-  status: TodoStatus;
+  status: TodoStatus; //todostatus enum
 }
