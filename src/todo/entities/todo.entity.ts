@@ -14,4 +14,6 @@ export class Todo {
 
   @Column()
   status: TodoStatus;
+
+  //many to one relations
 }
