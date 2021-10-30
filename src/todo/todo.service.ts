@@ -32,16 +32,17 @@ export class TodoService {
   }
 
   async findOne(id: number) {
-    
-    try{
+    try {
       const result = await this.todoRepository.findOne(id);
       if (result) {
         return result;
       } else {
         throw new NotFoundException('Result Not Found!');
-       }
-    }catch(error){
-      throw new InternalServerErrorException('Cannot find data. Try aganin later.');
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Cannot find data. Try aganin later.',
+      );
     }
   }
 
