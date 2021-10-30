@@ -15,6 +15,7 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { Todo } from './entities/todo.entity';
 import { TodoStatusValidationPipe } from './pipes/todo-status-validation.pipi';
 import { UpdateTodoDto } from './dto/update-todo.dts';
+import { TodoStatus } from './utils/todo-status.enum';
 @Controller('todo')
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
@@ -30,13 +31,22 @@ export class TodoController {
     return this.todoService.findAll();
   }
 
-  //not working
+  //update title and description
   @Patch(':id')
   update(
-    @Param('id') id: number,
-    @Body('status', TodoStatusValidationPipe) updateTodoDto: UpdateTodoDto,
-  ) {
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTodoDto: UpdateTodoDto,
+  ): Promise<any> {
     return this.todoService.update(id, updateTodoDto);
+  }
+
+  //update status only
+  @Patch('status/:id')
+  updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status', TodoStatusValidationPipe) status: TodoStatus,
+  ): Promise<any> {
+    return this.todoService.updateStatus(id, status);
   }
 
   @Delete(':id')

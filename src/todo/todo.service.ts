@@ -8,6 +8,7 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dts';
 import { Todo } from './entities/todo.entity';
 import { TodoRepository } from './repository/todo.repository';
+import { TodoStatus } from './utils/todo-status.enum';
 
 @Injectable()
 export class TodoService {
@@ -31,18 +32,23 @@ export class TodoService {
   }
 
   async findOne(id: number) {
-    return await this.todoRepository.findOne(id);
+    const result = await this.todoRepository.findOne(id);
+
+    if (result) {
+      return result;
+    } else {
+      throw new NotFoundException('Result Not Found!');
+    }
   }
 
-  ////not working
-  async update(id: number, updateTodoDto: UpdateTodoDto) {
+  //update title and description
+  async update(id: number, updateTodoDto: UpdateTodoDto): Promise<any> {
     const itemFound = await this.findOne(id);
 
-    const { todoName, todoDescription, status } = updateTodoDto;
+    const { todoName, todoDescription } = updateTodoDto;
 
     itemFound.todoName = todoName;
     itemFound.todoDescription = todoDescription;
-    itemFound.status = status;
 
     try {
       await this.todoRepository.manager.save(itemFound);
@@ -68,5 +74,14 @@ export class TodoService {
         return { message: `${found.todoName} deleted` };
       }
     }
+  }
+
+  //update todo status
+  async updateStatus(id: number, status: TodoStatus): Promise<any> {
+    const todo = await this.findOne(id);
+
+    todo.status = status;
+    await this.todoRepository.manager.save(todo);
+    return { message: `${todo.todoName}'s status updated.'`, todo };
   }
 }
