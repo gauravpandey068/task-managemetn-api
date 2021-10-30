@@ -1,5 +1,4 @@
 import { IsNotEmpty, IsString } from 'class-validator';
-import { TodoStatus } from '../utils/todo-status.enum';
 
 export class UpdateTodoDto {
   @IsNotEmpty()
@@ -8,7 +7,4 @@ export class UpdateTodoDto {
 
   @IsString()
   todoDescription: string;
-
-  @IsNotEmpty()
-  status: TodoStatus; //todostatus enum
 }
