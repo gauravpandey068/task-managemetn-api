@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { TaskService } from 'src/task/task.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dts';
 import { Todo } from './entities/todo.entity';
@@ -15,40 +17,66 @@ export class TodoService {
   constructor(
     @InjectRepository(TodoRepository)
     private todoRepository: TodoRepository,
+    private taskService: TaskService, //import taskService
   ) {}
 
-  async create(createTodoDto: CreateTodoDto): Promise<any> {
-    try {
-      return this.todoRepository.createTodo(createTodoDto);
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Cannot add todo. please try again later.',
-      );
+  async create(taskId: number, createTodoDto: CreateTodoDto): Promise<any> {
+    //check task is exist
+    const result = await this.taskService.findOne(taskId);
+
+    if (result) {
+      try {
+        return await this.todoRepository.createTodo(taskId, createTodoDto);
+      } catch (error) {
+        throw new InternalServerErrorException(
+          'Cannot add todo. please try again later.',
+        );
+      }
     }
   }
 
-  async findAll(): Promise<Todo[]> {
-    return await this.todoRepository.find();
+  async findAll(taskId: number): Promise<Todo[]> {
+    const result = await this.taskService.findOne(taskId);
+    if (result) {
+      const found = await this.todoRepository.find({
+        where: { taskId: taskId },
+      });
+      if (found) {
+        return found;
+      } else {
+        throw new BadRequestException();
+      }
+    } else {
+      throw new NotFoundException('Task Not Found');
+    }
   }
 
-  async findOne(id: number) {
-    try {
-      const result = await this.todoRepository.findOne(id);
-      if (result) {
-        return result;
-      } else {
+  async findOne(id: number, taskId: number) {
+    const found = await this.taskService.findOne(taskId);
+
+    if (found) {
+      try {
+        const result = await this.todoRepository.findOne({
+          where: { id, taskId: taskId },
+        });
+        if (result) {
+          return result;
+        } else {
+          throw new NotFoundException('Result Not Found!');
+        }
+      } catch (error) {
         throw new NotFoundException('Result Not Found!');
       }
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Cannot find data. Try aganin later.',
-      );
     }
   }
 
   //update title and description
-  async update(id: number, updateTodoDto: UpdateTodoDto): Promise<any> {
-    const itemFound = await this.findOne(id);
+  async update(
+    id: number,
+    taskId: number,
+    updateTodoDto: UpdateTodoDto,
+  ): Promise<any> {
+    const itemFound = await this.findOne(id, taskId);
 
     const { todoName, todoDescription } = updateTodoDto;
 
@@ -66,8 +94,8 @@ export class TodoService {
     }
   }
 
-  async remove(id: number): Promise<any> {
-    const found = await this.todoRepository.findOne(id);
+  async remove(id: number, taskId: number): Promise<any> {
+    const found = await this.findOne(id, taskId);
 
     if (!found) {
       throw new NotFoundException(`ToDo Items of id ${id} not found`);
@@ -82,8 +110,12 @@ export class TodoService {
   }
 
   //update todo status
-  async updateStatus(id: number, status: TodoStatus): Promise<any> {
-    const todo = await this.findOne(id);
+  async updateStatus(
+    id: number,
+    taskId: number,
+    status: TodoStatus,
+  ): Promise<any> {
+    const todo = await this.findOne(id, taskId);
 
     todo.status = status;
     await this.todoRepository.manager.save(todo);
