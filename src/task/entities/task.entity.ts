@@ -1,14 +1,7 @@
 import { Todo } from 'src/todo/entities/todo.entity';
-import {
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  Unique,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-@Unique(['taskName'])
 export class Task {
   @PrimaryGeneratedColumn()
   id: number;
