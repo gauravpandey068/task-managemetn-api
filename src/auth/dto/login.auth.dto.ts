@@ -6,7 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class AuthDto {
+export class LoginAuthDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(8)
@@ -26,16 +26,4 @@ export class AuthDto {
       'Password Must Contain 1 upper case, 1 lower case, 1 number and 1 special character',
   })
   password: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(3)
-  @MaxLength(20)
-  firstName: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(3)
-  @MaxLength(20)
-  lastName: string;
 }
