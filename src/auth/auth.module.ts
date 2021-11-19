@@ -6,9 +6,11 @@ import { UserRepository } from './repository/auth.repository';
 
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConfig } from 'src/config/jwt.config';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: jwtConfig.secretKey,
       signOptions: { expiresIn: '86400s' },
