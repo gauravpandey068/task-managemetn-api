@@ -17,4 +17,7 @@ export class Auth {
 
   @Column()
   lastName: string;
+
+  @Column()
+  salt: string;
 }
