@@ -8,6 +8,7 @@ import { FilterDto } from './dto/filter.dto';
 import { TaskDto } from './dto/task.dto';
 import { TaskRepository } from './repository/task.repository';
 import { Task } from './entities/task.entity';
+import { Auth } from 'src/auth/entities/auth.entity';
 
 @Injectable()
 export class TaskService {
@@ -17,37 +18,39 @@ export class TaskService {
   ) {}
 
   //create task
-  async create(createTaskDto: TaskDto): Promise<any> {
+  async create(createTaskDto: TaskDto, user: Auth): Promise<any> {
     try {
-      return this.taskRepository.createTask(createTaskDto);
+      return this.taskRepository.createTask(createTaskDto, user);
     } catch (error) {
       throw new InternalServerErrorException();
     }
   }
 
   //find all task
-  async findAll(filterDto: FilterDto): Promise<Task[]> {
+  async findAll(filterDto: FilterDto, user: Auth): Promise<Task[]> {
     try {
-      return this.taskRepository.getAllTasks(filterDto);
+      return this.taskRepository.getAllTasks(filterDto, user);
     } catch (error) {
       throw new InternalServerErrorException();
     }
   }
 
   //find task by id
-  async findOne(id: number): Promise<Task> {
-    const taskById = await this.taskRepository.findOne(id);
+  async findOne(id: number, user: Auth): Promise<Task> {
+    const found = await this.taskRepository.findOne({
+      where: { id, userId: user.id },
+    });
 
-    if (!taskById) {
+    if (!found) {
       throw new NotFoundException(`Task ${id} not found in database.`);
     } else {
-      return taskById;
+      return found;
     }
   }
 
   //update task by id
-  async update(id: number, updateTaskDto: TaskDto): Promise<any> {
-    const task = await this.findOne(id);
+  async update(id: number, updateTaskDto: TaskDto, user: Auth): Promise<any> {
+    const task = await this.findOne(id, user);
     const oldTaskName = task.taskName;
     const { taskName, description } = updateTaskDto;
 
@@ -66,8 +69,8 @@ export class TaskService {
   }
 
   //delete task by id
-  async remove(id: number): Promise<string> {
-    const findTask = await this.findOne(id);
+  async remove(id: number, user: Auth): Promise<any> {
+    const findTask = await this.findOne(id, user);
 
     if (findTask) {
       const result = await this.taskRepository.delete(id);
@@ -76,7 +79,7 @@ export class TaskService {
           `Cannot Delete Task of ${findTask.taskName}. Try again later.`,
         );
       } else {
-        return `Task ${findTask.taskName} is Deleted.`;
+        return { respond: `Task ${findTask.taskName} is Deleted.` };
       }
     } else {
       throw new NotFoundException(`Task of ${id} not found`);

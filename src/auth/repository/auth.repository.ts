@@ -32,6 +32,8 @@ export class UserRepository extends Repository<Auth> {
         throw new InternalServerErrorException();
       }
     }
+    delete user.password;
+    delete user.salt;
 
     return user;
   }

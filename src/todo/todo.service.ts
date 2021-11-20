@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Auth } from 'src/auth/entities/auth.entity';
 import { TaskService } from 'src/task/task.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dts';
@@ -17,12 +18,16 @@ export class TodoService {
   constructor(
     @InjectRepository(TodoRepository)
     private todoRepository: TodoRepository,
-    private taskService: TaskService, //import taskService
+    private taskService: TaskService, //import taskService,
   ) {}
 
-  async create(taskId: number, createTodoDto: CreateTodoDto): Promise<any> {
+  async create(
+    taskId: number,
+    createTodoDto: CreateTodoDto,
+    user: Auth,
+  ): Promise<any> {
     //check task is exist
-    const result = await this.taskService.findOne(taskId);
+    const result = await this.taskService.findOne(taskId, user);
 
     if (result) {
       try {
@@ -35,8 +40,8 @@ export class TodoService {
     }
   }
 
-  async findAll(taskId: number): Promise<Todo[]> {
-    const result = await this.taskService.findOne(taskId);
+  async findAll(taskId: number, user: Auth): Promise<Todo[]> {
+    const result = await this.taskService.findOne(taskId, user);
     if (result) {
       const found = await this.todoRepository.find({
         where: { taskId: taskId },
@@ -51,8 +56,8 @@ export class TodoService {
     }
   }
 
-  async findOne(id: number, taskId: number) {
-    const found = await this.taskService.findOne(taskId);
+  async findOne(id: number, taskId: number, user: Auth) {
+    const found = await this.taskService.findOne(taskId, user);
 
     if (found) {
       try {
@@ -75,8 +80,9 @@ export class TodoService {
     id: number,
     taskId: number,
     updateTodoDto: UpdateTodoDto,
+    user: Auth,
   ): Promise<any> {
-    const itemFound = await this.findOne(id, taskId);
+    const itemFound = await this.findOne(id, taskId, user);
 
     const { todoName, todoDescription } = updateTodoDto;
 
@@ -94,8 +100,8 @@ export class TodoService {
     }
   }
 
-  async remove(id: number, taskId: number): Promise<any> {
-    const found = await this.findOne(id, taskId);
+  async remove(id: number, taskId: number, user: Auth): Promise<any> {
+    const found = await this.findOne(id, taskId, user);
 
     if (!found) {
       throw new NotFoundException(`ToDo Items of id ${id} not found`);
@@ -114,8 +120,9 @@ export class TodoService {
     id: number,
     taskId: number,
     status: TodoStatus,
+    user: Auth,
   ): Promise<any> {
-    const todo = await this.findOne(id, taskId);
+    const todo = await this.findOne(id, taskId, user);
 
     todo.status = status;
     await this.todoRepository.manager.save(todo);
